@@ -1,0 +1,162 @@
+import { Colors } from "@/constants/Colors";
+import { useOnboardingStore } from "@/stores/onboardingStore";
+import Ionicons from "@react-native-vector-icons/ionicons";
+import { Image } from "expo-image";
+import { router } from "expo-router";
+import { useRef, useState } from "react";
+import {
+  Dimensions,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+const ONBOARDING_DATA = [
+  {
+    id: "1",
+    image: require("@/assets/images/onboardingImage1.png"),
+    title: "Buying Made Easy",
+    subtitle: `Find the engineering supplies you need fast and use
+our advanced filters to quickly find exactly what
+you’re looking for.`,
+  },
+  {
+    id: "2",
+    image: require("@/assets/images/onboardingImage2.png"),
+    title: "Split Payment",
+    subtitle: `Our Split payment allows you to divide the total cost
+of your purchase with your friends which helps to
+offer flexibility and convenience`,
+  },
+  {
+    id: "3",
+    image: require("@/assets/images/onboardingImage3.png"),
+    title: "Escrow Payment System",
+    subtitle: `We offer Escrow payment system that securely hold
+funds during a transaction, releasing them to the 
+seller only after all conditions are met, providing
+protection for both parties`,
+  },
+];
+
+const OnboardingScreen = () => {
+  const { width } = Dimensions.get("window");
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const FlatListRef = useRef<FlatList>(null);
+  const setHasOnboarded = useOnboardingStore((state) => state.setHasOnboarded);
+  const isLastSlide = currentIndex === ONBOARDING_DATA.length - 1;
+
+  const onViewableItemsChanged = useRef(({ viewableItems }) => {
+    if (viewableItems.length > 0) {
+      setCurrentIndex(viewableItems[0].index ?? 0);
+    }
+  });
+
+  const handleNext = () => {
+    FlatListRef.current?.scrollToIndex({
+      index: currentIndex + 1,
+      animated: true,
+    });
+  };
+
+  const handleGetStarted = () => {
+    setHasOnboarded(true);
+    router.replace("/");
+  };
+
+  const handleSkip = () => {
+    FlatListRef.current?.scrollToIndex({
+      index: ONBOARDING_DATA.length - 1,
+      animated: true,
+    });
+  };
+
+  const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 });
+
+  return (
+    <View style={{ flex: 1 }}>
+      <FlatList
+        ref={FlatListRef}
+        pagingEnabled={true}
+        data={ONBOARDING_DATA}
+        onViewableItemsChanged={onViewableItemsChanged.current}
+        viewabilityConfig={viewabilityConfig.current}
+        horizontal={true}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View style={[styles.slideContainer, { width }]}>
+            <View style={styles.container}>
+              <Image source={item.image} style={styles.image} />
+              <Text style={styles.title}>{item.title}</Text>
+              <Text style={styles.subtitle}>{item.subtitle}</Text>
+            </View>
+          </View>
+        )}
+      />
+      <View style={styles.footer}>
+        <Pressable onPress={handleSkip}>
+          <Text style={styles.nextButton}>Skip</Text>
+        </Pressable>
+        <Pressable
+          onPress={isLastSlide ? handleGetStarted : handleNext}
+          style={styles.nextButton}
+        >
+          {isLastSlide ? (
+            <Text>Get Started</Text>
+          ) : (
+            <Ionicons name="arrow-forward-outline" color={Colors.background} />
+          )}
+        </Pressable>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+
+  slideContainer: {
+    // width is dynamic and should remain inline:
+    // style={[styles.slideContainer, { width }]}
+  },
+
+  image: {
+    width: 300,
+    height: 300,
+  },
+
+  title: {
+    fontSize: 20,
+    fontFamily: "Lato_400Regular",
+    color: Colors.text,
+    textAlign: "center",
+  },
+
+  subtitle: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+    fontFamily: "Lato_300Light",
+  },
+
+  footer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+
+  skipText: {
+    fontFamily: "Lato_300Light",
+    color: Colors.text,
+  },
+
+  nextButton: {
+    backgroundColor: Colors.primary,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+});
+
+export default OnboardingScreen;
