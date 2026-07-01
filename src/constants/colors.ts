@@ -3,9 +3,13 @@ export const Colors = {
   text: "#000000",
   textSecondary: "#888888",
   background: "#FFFFFF",
+  borderSecondary: "#A5A5A5",
   border: "#000000",
   secondary: "#EFF2F6",
+  secondary2: "#E6EDF7",
   placeholder: "#BEBEBE",
   error: "#DC2626",
-  screenTitle: "#616161"
+  screenTitle: "#616161",
+  yellowPrimary: "#EDB310",
+  backgroundTertiary: "#F5F8FC",
 };

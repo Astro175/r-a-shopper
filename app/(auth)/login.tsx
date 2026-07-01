@@ -65,7 +65,6 @@ const LoginScreen = () => {
         </View>
         <View style={styles.signUpContainer}>
           <Text style={styles.signUpText}>Don't have an account? </Text>
-
           <Pressable onPress={() => router.push("/sign-up")}>
             <Text style={styles.signUpLink}>Sign up</Text>
           </Pressable>
