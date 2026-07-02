@@ -1,8 +1,12 @@
 import { Colors } from "@/constants/colors";
+import { useCartStore } from "@/stores/cartStore";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { Tabs } from "expo-router";
 
 const BuyerLayout = () => {
+  const totalItems = useCartStore((state) =>
+    state.cart.reduce((sum, item) => sum + item.quantity, 0),
+  );
   return (
     <Tabs
       screenOptions={{
@@ -36,15 +40,16 @@ const BuyerLayout = () => {
         }}
       />
       <Tabs.Screen
-        name="orders"
+        name="cart"
         options={{
-          title: "My Order",
+          title: "Cart",
           tabBarIcon: ({ color, size, focused }) =>
             focused ? (
-              <Ionicons name="reader" color={color} size={size} />
+              <Ionicons name="cart" color={color} size={size} />
             ) : (
-              <Ionicons name="reader-outline" color={color} size={size} />
+              <Ionicons name="cart-outline" color={color} size={size} />
             ),
+          tabBarBadge: totalItems > 0 ? totalItems : undefined,
         }}
       />
       <Tabs.Screen

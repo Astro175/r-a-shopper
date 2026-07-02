@@ -12,4 +12,5 @@ export const Colors = {
   screenTitle: "#616161",
   yellowPrimary: "#EDB310",
   backgroundTertiary: "#F5F8FC",
+  cancel: "#E81212",
 };

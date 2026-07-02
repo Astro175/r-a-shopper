@@ -1,5 +1,6 @@
 import { Colors } from "@/constants/colors";
 import { useProduct } from "@/hooks/useProduct";
+import { useCartStore } from "@/stores/cartStore";
 import { formatNaira } from "@/utils/currency";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { Image } from "expo-image";
@@ -18,6 +19,7 @@ const ProductDetails = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: product, error } = useProduct(id);
   const [itemQuantity, setItemQuantity] = useState(1);
+  const addToCart = useCartStore((state) => state.addToCart);
 
   if (error) {
     return (
@@ -46,7 +48,17 @@ const ProductDetails = () => {
     }
   };
 
-  const handleAddToCart = () => {};
+  const handleAddToCart = () => {
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      imageUrl: product.imageUrl,
+      quantity: itemQuantity,
+      sellerName: product.seller.name,
+      stockCount: product.quantity,
+    });
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -138,7 +150,6 @@ const ProductDetails = () => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Description</Text>
-
           <Text style={styles.description}>{product.description}</Text>
         </View>
 

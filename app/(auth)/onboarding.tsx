@@ -1,4 +1,4 @@
-import { Colors } from "@/constants/Colors";
+import { Colors } from "@/constants/colors";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { Image } from "expo-image";
@@ -53,15 +53,15 @@ const OnboardingScreen = () => {
     }
   });
 
-  const handleNext = () => {
-    FlatListRef.current?.scrollToIndex({
-      index: currentIndex + 1,
+     index: currentIndex + 1,
       animated: true,
     });
   };
 
   const handleGetStarted = () => {
-    setHasOnboarded(true);
+    seconst handleNext = () => {
+    FlatListRef.current?.scrollToIndex({
+   tHasOnboarded(true);
     router.replace("/");
   };
 
