@@ -1,4 +1,4 @@
-import { Colors } from "@/constants/Colors";
+import { Colors } from "@/constants/colors";
 import { supabase } from "@/lib/supabase";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";

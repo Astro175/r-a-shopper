@@ -295,6 +295,8 @@ const styles = StyleSheet.create({
     padding: 10,
     paddingHorizontal: 20,
     justifyContent: "space-between",
+    flexDirection: "row",
+    alignItems: "center",
   },
 
   price: {
@@ -308,6 +310,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: Colors.background,
   },
 
   addToCartText: {

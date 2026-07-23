@@ -7,14 +7,7 @@ import Ionicons, {
   IoniconsIconName,
 } from "@react-native-vector-icons/ionicons";
 import { router } from "expo-router";
-import {
-  FlatList,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { FlatList, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type CategoryItem = {
@@ -31,39 +24,47 @@ const CATEGORIES: CategoryItem[] = [
 ];
 
 const HomeScreen = () => {
-  const { data } = useProducts({ limit: 10, sortBy: "New Today" });
+  const { data, error } = useProducts({ limit: 10 });
   const products = data?.pages.flatMap((page) => page.products);
+
   const { data: suppliers } = useSupplier();
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.scrollView}>
+    <SafeAreaView className="flex-1 p-2.5">
+      <ScrollView className="flex-1">
         <FlatList
           data={CATEGORIES}
           horizontal
+          showsHorizontalScrollIndicator={false}
           keyExtractor={(item) => item.name}
           renderItem={({ item }) => (
             <Pressable
-              style={styles.categoryItem}
+              className="mr-3 items-center"
               onPress={() =>
                 router.push({
-                  pathname: "/(buyer)/(market)/",
+                  pathname: "/(buyer)/(market)",
                   params: { category: item.name },
                 })
               }
             >
-              <View style={styles.categoryIconContainer}>
-                <Ionicons name={item.icon} color={Colors.primary} />
+              <View className="h-[60px] w-[60px] items-center justify-center rounded-full bg-secondary2">
+                <Ionicons name={item.icon} size={24} color={Colors.primary} />
               </View>
-              <Text style={styles.categoryText}>{item.name}</Text>
+
+              <Text className="mt-1.5 font-lato text-[10px] text-textSecondary">
+                {item.name}
+              </Text>
             </Pressable>
           )}
         />
+        <Text className="mb-2.5 font-lato-bold text-[16px] text-text">
+          Recently Added
+        </Text>
 
-        <Text style={styles.sectionTitle}>Recently Added</Text>
         <FlatList
           data={products}
           horizontal
+          showsHorizontalScrollIndicator={false}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <ProductCard
@@ -71,62 +72,29 @@ const HomeScreen = () => {
               variant="horizontal"
               onPress={() =>
                 router.push({
-                  pathname: "/(buyer)/product/[id]",
+                  pathname: "/(buyer)/( market)/product/[id]",
                   params: { id: item.id },
                 })
               }
             />
           )}
         />
-        <View style={styles.spacer} />
-        <Text style={styles.sectionTitle}>Top Suppliers</Text>
+
+        <View className="my-5" />
+        <Text className="mb-2.5 font-lato-bold text-[16px] text-text">
+          Top Suppliers
+        </Text>
 
         <FlatList
-          keyExtractor={(item) => item.id}
           data={suppliers}
           horizontal
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={(item) => item.id}
           renderItem={({ item }) => <SupplierCard supplier={item} />}
         />
       </ScrollView>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    padding: 10,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  sectionTitle: {
-    marginBottom: 10,
-    color: Colors.text,
-    fontFamily: "Lato_700Bold",
-    fontSize: 16,
-  },
-  spacer: {
-    marginVertical: 20,
-  },
-  categoryItem: {
-    alignItems: "center",
-    marginRight: 12,
-  },
-  categoryIconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: Colors.secondary2,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  categoryText: {
-    color: Colors.textSecondary,
-    fontFamily: "Lato_400Regular",
-    fontSize: 10,
-    marginTop: 6,
-  },
-});
 
 export default HomeScreen;

@@ -12,6 +12,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 const ONBOARDING_DATA = [
   {
     id: "1",
@@ -53,15 +54,15 @@ const OnboardingScreen = () => {
     }
   });
 
-     index: currentIndex + 1,
+  const handleNext = () => {
+    FlatListRef.current?.scrollToIndex({
+      index: currentIndex + 1,
       animated: true,
     });
   };
 
   const handleGetStarted = () => {
-    seconst handleNext = () => {
-    FlatListRef.current?.scrollToIndex({
-   tHasOnboarded(true);
+    setHasOnboarded(true);
     router.replace("/");
   };
 
@@ -75,10 +76,11 @@ const OnboardingScreen = () => {
   const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 });
 
   return (
-    <View style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: Colors.background }}>
       <FlatList
         ref={FlatListRef}
         pagingEnabled={true}
+        showsHorizontalScrollIndicator={false}
         data={ONBOARDING_DATA}
         onViewableItemsChanged={onViewableItemsChanged.current}
         viewabilityConfig={viewabilityConfig.current}
@@ -95,33 +97,42 @@ const OnboardingScreen = () => {
         )}
       />
       <View style={styles.footer}>
-        <Pressable onPress={handleSkip}>
-          <Text style={styles.nextButton}>Skip</Text>
-        </Pressable>
-        <Pressable
-          onPress={isLastSlide ? handleGetStarted : handleNext}
-          style={styles.nextButton}
-        >
-          {isLastSlide ? (
-            <Text>Get Started</Text>
-          ) : (
-            <Ionicons name="arrow-forward-outline" color={Colors.background} />
-          )}
-        </Pressable>
+        {isLastSlide ? (
+          <Pressable style={styles.getStartedButton} onPress={handleGetStarted}>
+            <Text style={styles.getStartedButtonText}>Get Started</Text>
+          </Pressable>
+        ) : (
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-between" }}
+          >
+            <Pressable onPress={handleSkip}>
+              <Text style={styles.skipText}>Skip</Text>
+            </Pressable>
+            <Pressable
+              onPress={isLastSlide ? handleGetStarted : handleNext}
+              style={styles.nextButton}
+            >
+              <Ionicons
+                name="chevron-forward-outline"
+                color={Colors.background}
+                size={25}
+              />
+            </Pressable>
+          </View>
+        )}
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
 
-  slideContainer: {
-    // width is dynamic and should remain inline:
-    // style={[styles.slideContainer, { width }]}
-  },
+  slideContainer: {},
 
   image: {
     width: 300,
@@ -139,9 +150,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.textSecondary,
     fontFamily: "Lato_300Light",
+    textAlign: "center",
+    marginTop: 10,
   },
 
   footer: {
+    paddingHorizontal: 15,
+  },
+  footerButtonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
   },
@@ -156,6 +172,20 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  getStartedButton: {
+    backgroundColor: Colors.primary,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+
+  getStartedButtonText: {
+    color: Colors.background,
+    fontFamily: "Lato_400Regular",
+    fontSize: 14,
   },
 });
 

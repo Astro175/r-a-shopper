@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "532065588307",
+    "project_id": "a-shopper-8ac98",
+    "storage_bucket": "a-shopper-8ac98.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:532065588307:android:41c3c0cc5c12f0f96522a6",
+        "android_client_info": {
+          "package_name": "com.ashopper.rshopper"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "532065588307-06oa3h80oiqlasslc6vpad5f9vh9tmop.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ashopper.rshopper",
+            "certificate_hash": "127e969e337333a50f704e9c46acab42944a9765"
+          }
+        },
+        {
+          "client_id": "532065588307-8iigkhltgcispqg4n15oi0099ug238og.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAAEdesZPMSrLW94i5Me16xUvjlQqy5zX4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "532065588307-8iigkhltgcispqg4n15oi0099ug238og.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

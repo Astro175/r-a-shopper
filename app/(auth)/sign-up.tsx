@@ -1,6 +1,9 @@
+import Button from "@/components/Button";
 import MediumLogoIcon from "@/components/icons/MediumLogoIcon";
-import { Colors } from "@/constants/Colors";
+import Input from "@/components/Input";
+import { Colors } from "@/constants/colors";
 import { supabase } from "@/lib/supabase";
+import { showToast } from "@/utils/toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { router } from "expo-router";
@@ -10,7 +13,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  StyleSheet,
   Text,
   TextInput,
   View,
@@ -23,6 +25,7 @@ const schema = z.object({
   email: z.email("Email format is incorrect"),
   role: z.enum(["buyer", "seller"]),
 });
+
 type FormValues = z.infer<typeof schema>;
 
 const SignUpScreen = () => {
@@ -31,15 +34,17 @@ const SignUpScreen = () => {
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm({
+  } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { role: "buyer" },
   });
+
   const role = watch("role");
   const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
+
     const { error } = await supabase.auth.signInWithOtp({
       email: data.email,
       options: {
@@ -50,86 +55,96 @@ const SignUpScreen = () => {
         },
       },
     });
+
     setIsLoading(false);
+
     if (error) {
-      // TODO: Build Error UI
+      showToast(error.message)
       return;
     }
-    router.push({pathname: '/verify-otp', params: {email: data.email}});
+
+    router.push({
+      pathname: "/verify-otp",
+      params: { email: data.email },
+    });
   };
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
-      style={styles.keyboardAvoidingView}
+      className="flex-1"
     >
-      <SafeAreaView style={styles.safeArea}>
-        <MediumLogoIcon />
-        <View style={styles.headerContainer}>
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Please fill the details below</Text>
+      <SafeAreaView className="flex-1 bg-background p-5">
+        <View className="my-4 items-center justify-center">
+          <MediumLogoIcon />
+
+          <Text className="my-2.5 font-lato-bold text-[18px] text-text">
+            Create Account
+          </Text>
+
+          <Text className="font-lato text-sm text-text">
+            Please fill the details below
+          </Text>
         </View>
         <Controller
           name="role"
           control={control}
           render={({ field: { onChange } }) => (
-            <View style={styles.roleContainer}>
-              <Pressable onPress={() => onChange("buyer")}>
+            <View className="flex-row items-center justify-center gap-8">
+              <Pressable
+                className="items-center"
+                onPress={() => onChange("buyer")}
+              >
                 <View
-                  style={[
-                    styles.roleIconContainer,
-                    {
-                      borderColor:
-                        role === "buyer" ? Colors.primary : Colors.border,
-                    },
-                  ]}
+                  className={`h-[60px] w-[60px] rounded-lg border p-3 ${
+                    role === "buyer"
+                      ? "border-primary"
+                      : "border-borderSecondary"
+                  }`}
                 >
                   <Ionicons
                     size={28}
                     name="cart-outline"
-                    color={role === "buyer" ? Colors.primary : Colors.border}
+                    color={
+                      role === "buyer" ? Colors.primary : Colors.borderSecondary
+                    }
                   />
                 </View>
+
                 <Text
-                  style={[
-                    styles.roleLabel,
-                    {
-                      color:
-                        role === "buyer"
-                          ? Colors.primary
-                          : Colors.textSecondary,
-                    },
-                  ]}
+                  className={`text-center font-lato text-sm ${
+                    role === "buyer" ? "text-primary" : "text-textSecondary"
+                  }`}
                 >
                   Buyer
                 </Text>
               </Pressable>
-              <Pressable onPress={() => onChange("seller")}>
+              <Pressable
+                className="items-center"
+                onPress={() => onChange("seller")}
+              >
                 <View
-                  style={[
-                    styles.roleIconContainer,
-                    {
-                      borderColor:
-                        role === "seller" ? Colors.primary : Colors.border,
-                    },
-                  ]}
+                  className={`h-[60px] w-[60px] rounded-lg border p-3 ${
+                    role === "seller"
+                      ? "border-primary"
+                      : "border-borderSecondary"
+                  }`}
                 >
                   <Ionicons
                     name="cube-outline"
                     size={28}
-                    color={role === "seller" ? Colors.primary : Colors.border}
+                    color={
+                      role === "seller"
+                        ? Colors.primary
+                        : Colors.borderSecondary
+                    }
                   />
                 </View>
+
                 <Text
-                  style={[
-                    styles.roleLabel,
-                    {
-                      color:
-                        role === "seller"
-                          ? Colors.primary
-                          : Colors.textSecondary,
-                    },
-                  ]}
+                  className={`text-center font-lato text-sm ${
+                    role === "seller" ? "text-primary" : "text-textSecondary"
+                  }`}
                 >
                   Seller
                 </Text>
@@ -137,8 +152,11 @@ const SignUpScreen = () => {
             </View>
           )}
         />
+
         {errors.role && (
-          <Text style={styles.errorText}>{errors.role.message}</Text>
+          <Text className="mt-1 font-lato text-sm text-error">
+            {errors.role.message}
+          </Text>
         )}
         <Controller
           name="fullName"
@@ -149,124 +167,36 @@ const SignUpScreen = () => {
               onChangeText={onChange}
               placeholder="Full Name"
               placeholderTextColor={Colors.placeholder}
-              style={styles.input}
+              className="my-4 rounded-xl bg-secondary px-3 py-3.5"
             />
           )}
         />
-        {errors.fullName && (
-          <Text style={styles.errorText}>{errors.fullName.message}</Text>
-        )}
         <Controller
           control={control}
           name="email"
           render={({ field: { onChange, value } }) => (
-            <TextInput
+            <Input
+              errorMessage={errors.email && errors.email.message}
               value={value}
               onChangeText={onChange}
               autoComplete="email"
               keyboardType="email-address"
               placeholder="Email"
-              placeholderTextColor={Colors.placeholder}
-              style={styles.input}
+              autoCapitalize="none"
             />
           )}
         />
-        {errors.email && (
-          <Text style={styles.errorText}>{errors.email.message}</Text>
-        )}
-        <View style={{ flex: 1 }} />
-        <Pressable
+        <View className="flex-1" />
+
+        <Button
+          label="Proceed"
+          variant="primary"
+          isLoading={isLoading}
           onPress={handleSubmit(onSubmit)}
-          style={styles.proceedButton}
-          disabled={isLoading}
-        >
-          <Text style={styles.proceedButtonText}>
-            {isLoading ? "Sending..." : "Proceed"}
-          </Text>
-        </Pressable>
+        />
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  keyboardAvoidingView: {
-    flex: 1,
-  },
-
-  safeArea: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: Colors.background,
-  },
-
-  headerContainer: {
-    margin: 15,
-  },
-
-  title: {
-    fontFamily: "Lato_400Regular",
-    fontSize: 20,
-    color: Colors.text,
-  },
-
-  subtitle: {
-    color: Colors.textSecondary,
-    fontFamily: "Lato_300Light",
-    fontSize: 14,
-  },
-  errorText: {
-    color: Colors.error,
-    fontFamily: "Lato_400Regular",
-    fontSize: 12,
-    marginTop: 4,
-  },
-
-  roleContainer: {
-    alignItems: "center",
-    gap: 10,
-  },
-
-  roleButton: {
-    alignItems: "center",
-  },
-
-  roleIconContainer: {
-    width: 60,
-    height: 60,
-    padding: 13,
-    borderRadius: 8,
-  },
-
-  roleLabel: {
-    textAlign: "center",
-  },
-
-  input: {
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderRadius: 12,
-    borderColor: Colors.secondary,
-  },
-
-  spacer: {
-    flex: 1,
-  },
-
-  proceedButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 14,
-    borderRadius: 20,
-  },
-
-  proceedButtonText: {
-    textAlign: "center",
-    color: Colors.text,
-    fontFamily: "Lato_400Regular",
-    fontSize: 12,
-  },
-});
 
 export default SignUpScreen;
