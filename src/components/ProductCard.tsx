@@ -1,9 +1,8 @@
 import { Product } from "@/api/types/product";
-import { Colors } from "@/constants/colors";
 import { formatNaira } from "@/utils/currency";
-import Ionicons from "@react-native-vector-icons/ionicons";
 import { Image } from "expo-image";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
+
 type ProductCardProps = {
   product: Product;
   variant: "horizontal" | "grid";
@@ -14,49 +13,66 @@ const ProductCard = ({ product, variant, onPress }: ProductCardProps) => {
   return (
     <Pressable onPress={onPress}>
       {variant === "horizontal" ? (
-        <View style={styles.horizontalCard}>
-          <View style={styles.horizontalImageWrapper}>
+        <View className="rounded-t-xl bg-background">
+          <View className="items-center justify-center bg-secondary2 p-2 rounded-t-2xl">
             <Image
               source={{ uri: product.imageUrl }}
-              style={styles.horizontalImage}
+              style={{ width: 140, height: 100 }}
             />
           </View>
 
-          <View style={styles.horizontalContent}>
-            <Text style={styles.horizontalName}>{product.name}</Text>
-            <Text style={styles.horizontalPrice}>
+          <View className="mt-4 p-3 gap-2">
+            <Text className="font-lato-bold text-[12px] text-text">
+              {product.name}
+            </Text>
+
+            <Text className="font-lato-bold text-[14px] text-text">
               {formatNaira(product.price)}
             </Text>
-            <Text style={styles.horizontalStock}>
+
+            <Text className="font-lato text-[8px] text-textSecondary">
               {product.quantity} pieces remaining
             </Text>
           </View>
         </View>
       ) : (
-        <View style={styles.gridCard}>
-          <View style={styles.gridImageWrapper}>
+        <View
+          className="flex-1 m-1"
+          style={{
+            backgroundColor: "#fff",
+            borderRadius: 6,
+            boxShadow: "0px 3px 6px rgba(0, 0, 0, 0.15)",
+          }}
+        >
+          <View className="items-center rounded-t-lg bg-secondary2 py-5">
             <Image
               source={{ uri: product.imageUrl }}
-              style={styles.gridImage}
+              style={{ width: 140, height: 160 }}
             />
           </View>
 
-          <View style={styles.gridContent}>
-            <Text style={styles.gridName}>{product.name}</Text>
+          <View className="mt-2.5 gap-2 px-2 rounded-b-lg">
+            <Text className="font-lato text-[16px] text-text">
+              {product.name}
+            </Text>
 
-            <Text style={styles.gridDescription}>{product.description}</Text>
+            <Text
+              className="font-lato text-[10px] text-black"
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {product.description}
+            </Text>
 
-            <View style={styles.gridRow}>
-              <Text style={styles.gridVendor}>
+            <View className="flex-row items-center justify-between">
+              <Text className="font-lato-bold text-[10px] text-text">
                 Vendor: {product.seller.name}
               </Text>
-
-              <Pressable>
-                <Ionicons color={Colors.primary} name="chatbubble" size={20} />
-              </Pressable>
             </View>
 
-            <Text style={styles.gridPrice}>{formatNaira(product.price)}</Text>
+            <Text className="font-lato-bold text-lg text-text">
+              {formatNaira(product.price)}
+            </Text>
           </View>
         </View>
       )}
@@ -65,74 +81,3 @@ const ProductCard = ({ product, variant, onPress }: ProductCardProps) => {
 };
 
 export default ProductCard;
-
-const styles = StyleSheet.create({
-  horizontalCard: {
-    padding: 10,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-    backgroundColor: Colors.background,
-  },
-  horizontalImageWrapper: {
-    backgroundColor: Colors.secondary2,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  horizontalImage: {
-    width: 100,
-    height: 80,
-  },
-  horizontalContent: {
-    marginTop: 10,
-  },
-  horizontalName: {
-    fontFamily: "Lato_700Bold",
-    fontSize: 12,
-  },
-  horizontalPrice: {
-    fontFamily: "Lato_700Bold",
-    fontSize: 14,
-  },
-  horizontalStock: {
-    fontFamily: "Lato_400Regular",
-    fontSize: 8,
-  },
-
-  gridCard: {
-    padding: 10,
-  },
-  gridImageWrapper: {
-    paddingVertical: 20,
-    backgroundColor: Colors.secondary2,
-    borderTopRightRadius: 8,
-    borderTopLeftRadius: 8,
-  },
-  gridImage: {
-    width: 120,
-    height: 160,
-  },
-  gridContent: {
-    marginTop: 10,
-  },
-  gridName: {
-    fontFamily: "Lato_700Bold",
-    fontSize: 16,
-  },
-  gridDescription: {
-    fontFamily: "Lato_400Regular",
-    fontSize: 10,
-    color: Colors.secondary2,
-  },
-  gridRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  gridVendor: {
-    fontFamily: "Lato_700Bold",
-    fontSize: 10,
-  },
-  gridPrice: {
-    fontFamily: "Lato_700Bold",
-    fontSize: 12,
-  },
-});

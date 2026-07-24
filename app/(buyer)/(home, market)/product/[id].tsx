@@ -6,13 +6,7 @@ import Ionicons from "@react-native-vector-icons/ionicons";
 import { Image } from "expo-image";
 import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const ProductDetails = () => {
@@ -23,14 +17,15 @@ const ProductDetails = () => {
 
   if (error) {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView className="flex-1">
         <Text>Something went wrong. Please try again.</Text>
       </SafeAreaView>
     );
   }
+
   if (!product) {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView className="flex-1 items-center justify-center">
         <ActivityIndicator size="large" />
       </SafeAreaView>
     );
@@ -61,17 +56,22 @@ const ProductDetails = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <Image source={{ uri: product.imageUrl }} style={styles.heroImage} />
+    <SafeAreaView className="flex-1 bg-backgroundTertiary">
+      <View className="flex-1 items-center bg-backgroundTertiary justify-center">
+        <Image
+          source={{ uri: product.imageUrl }}
+          style={{ width: 350, height: 300 }}
+        />
       </View>
 
-      <View style={styles.content}>
-        <View style={styles.section}>
-          <View style={styles.titleRow}>
-            <Text style={styles.sectionTitle}>{product.name}</Text>
+      <View className="flex-1 rounded-t-2xl bg-background p-2.5">
+        <View className="mt-2.5">
+          <View className="mt-2.5 flex-row items-center justify-between">
+            <Text className="font-lato-bold text-[16px] text-text">
+              {product.name}
+            </Text>
 
-            <View style={styles.quantityContainer}>
+            <View className="h-10 w-[115px] flex-row items-center justify-around rounded-full bg-backgroundTertiary">
               <Pressable
                 onPress={handleReduceQuantity}
                 disabled={itemQuantity <= 1}
@@ -79,29 +79,25 @@ const ProductDetails = () => {
                 <Ionicons
                   name="remove-circle-outline"
                   size={28}
-                  color={Colors.background}
-                  style={styles.quantityIcon}
+                  color="black"
                 />
               </Pressable>
 
-              <Text style={styles.bodyText}>{itemQuantity}</Text>
+              <Text className="font-lato text-[16px] text-text">
+                {itemQuantity}
+              </Text>
 
               <Pressable
                 onPress={handleAddQuantity}
                 disabled={itemQuantity >= product.quantity}
               >
-                <Ionicons
-                  name="add-circle-outline"
-                  size={28}
-                  color={Colors.background}
-                  style={styles.quantityIcon}
-                />
+                <Ionicons name="add-circle-outline" size={28} color="black" />
               </Pressable>
             </View>
           </View>
 
-          <View style={styles.spaceBetween}>
-            <View style={styles.stars}>
+          <View className="flex-row justify-between">
+            <View className="flex-row gap-0.5">
               {Array.from({ length: 5 }).map((_, index) => (
                 <Ionicons
                   key={index}
@@ -112,212 +108,80 @@ const ProductDetails = () => {
               ))}
             </View>
 
-            <Text style={styles.secondaryText}>
+            <Text className="font-lato text-[12px] text-textSecondary">
               {product.quantity} pieces in store
             </Text>
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Vendor details</Text>
+        {/* Vendor */}
+        <View className="mt-2.5">
+          <Text className="font-lato-bold text-[16px] text-text">
+            Vendor details
+          </Text>
 
-          <View style={styles.vendorContainer}>
-            <View style={styles.vendorInfo}>
-              <View style={styles.vendorLogoContainer}>
-                <Image
-                  source={{ uri: product.seller.logoUrl }}
-                  style={styles.vendorLogo}
-                />
-              </View>
+          <View className="mt-2.5 flex-row justify-between">
+            <View className="gap-2.5">
+              <Image
+                source={{ uri: product.seller.logoUrl }}
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 20,
+                }}
+              />
 
               <View>
-                <Text style={styles.bodyText}>{product.seller.name}</Text>
-                <Text style={styles.secondaryText}>
+                <Text className="font-lato text-[16px] text-text">
+                  {product.seller.name}
+                </Text>
+
+                <Text className="font-lato text-[12px] text-textSecondary">
                   {product.seller.location}
                 </Text>
               </View>
             </View>
 
-            <View style={styles.chatContainer}>
-              <Pressable style={styles.chatButton}>
-                <Text style={styles.chatText}>Chat Vendor</Text>
+            <Pressable className="flex-row items-center gap-2.5">
+              <Text className="font-lato text-[14px] text-primary">
+                Chat Vendor
+              </Text>
 
-                <Ionicons name="chatbubbles" size={24} color={Colors.primary} />
-              </Pressable>
-            </View>
+              <Ionicons name="chatbubbles" size={24} color={Colors.primary} />
+            </Pressable>
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Description</Text>
-          <Text style={styles.description}>{product.description}</Text>
+        {/* Description */}
+        <View className="mt-2.5">
+          <Text className="font-lato-bold text-[16px] text-text">
+            Description
+          </Text>
+
+          <Text className="font-lato text-[14px] text-text">
+            {product.description}
+          </Text>
         </View>
 
-        <View style={styles.spacer} />
+        <View className="flex-1" />
 
-        <View style={styles.footer}>
-          <Text style={styles.price}>{formatNaira(product.price)}</Text>
+        <View className="w-full flex-row items-center justify-between rounded-xl bg-primary p-3 px-5">
+          <Text className="font-lato-bold text-[16px] text-background">
+            {formatNaira(product.price)}
+          </Text>
 
-          <Pressable style={styles.addToCartButton} onPress={handleAddToCart}>
-            <Text style={styles.addToCartText}>Add to Cart</Text>
+          <Pressable className="items-center justify-center rounded-lg bg-background p-2.5">
+            <Text
+              onPress={handleAddToCart}
+              className="font-lato-bold text-[16px] text-primary"
+            >
+              Add to Cart
+            </Text>
           </Pressable>
         </View>
       </View>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-  },
-  heroImage: {
-    width: 300,
-    height: 200,
-  },
-  content: {
-    flex: 1,
-    backgroundColor: Colors.background,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-  },
-  section: {
-    marginTop: 10,
-    padding: 10,
-  },
-
-  row: {
-    flexDirection: "row",
-  },
-
-  spaceBetween: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-
-  titleRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 10,
-    alignItems: "center",
-  },
-
-  sectionTitle: {
-    fontFamily: "Lato_700Bold",
-    fontSize: 16,
-    color: Colors.text,
-  },
-
-  bodyText: {
-    fontFamily: "Lato_400Regular",
-    fontSize: 16,
-    color: Colors.text,
-  },
-
-  secondaryText: {
-    fontFamily: "Lato_400Regular",
-    fontSize: 12,
-    color: Colors.textSecondary,
-  },
-
-  description: {
-    fontFamily: "Lato_400Regular",
-    fontSize: 14,
-    color: Colors.text,
-  },
-
-  quantityContainer: {
-    width: 115,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.backgroundTertiary,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-  },
-
-  quantityIcon: {
-    borderColor: Colors.secondary,
-  },
-
-  vendorContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 10,
-  },
-
-  vendorInfo: {
-    gap: 10,
-  },
-
-  vendorLogo: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-
-  vendorLogoContainer: {
-    alignItems: "flex-start",
-  },
-
-  chatContainer: {
-    alignItems: "center",
-  },
-
-  chatButton: {
-    flexDirection: "row",
-    gap: 10,
-    alignItems: "center",
-  },
-
-  chatText: {
-    fontFamily: "Lato_400Regular",
-    fontSize: 14,
-    color: Colors.primary,
-  },
-
-  stars: {
-    flexDirection: "row",
-    gap: 2,
-  },
-
-  spacer: {
-    flex: 1,
-  },
-
-  footer: {
-    width: "100%",
-    backgroundColor: Colors.primary,
-    borderRadius: 12,
-    padding: 10,
-    paddingHorizontal: 20,
-    justifyContent: "space-between",
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  price: {
-    fontFamily: "Lato_700Bold",
-    fontSize: 16,
-    color: Colors.background,
-  },
-
-  addToCartButton: {
-    padding: 10,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: Colors.background,
-  },
-
-  addToCartText: {
-    fontFamily: "Lato_700Bold",
-    fontSize: 16,
-    color: Colors.primary,
-  },
-});
 
 export default ProductDetails;

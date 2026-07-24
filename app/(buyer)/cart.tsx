@@ -1,70 +1,89 @@
+import Button from "@/components/Button";
 import { Colors } from "@/constants/colors";
 import { useCartStore } from "@/stores/cartStore";
 import { formatNaira } from "@/utils/currency";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { Image } from "expo-image";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { FlatList, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const CartScreen = () => {
   const items = useCartStore((state) => state.cart);
+
   const increaseItemQuantity = useCartStore(
     (state) => state.increaseItemQuantity,
   );
+
   const removeFromCart = useCartStore((state) => state.removeFromCart);
+
   const reduceItemQuantity = useCartStore((state) => state.reduceItemQuantity);
+
   const totalPrice = useCartStore((state) =>
     state.cart.reduce((sum, item) => sum + item.quantity * item.price, 0),
   );
 
   if (items.length === 0) {
     return (
-      <SafeAreaView>
+      <SafeAreaView className="flex-1">
         <Text>Cart is empty</Text>
       </SafeAreaView>
     );
   }
 
   const handleCheckout = () => {};
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
+    <SafeAreaView className="flex-1 bg-background">
+      <View className="flex-1 p-2.5">
         <FlatList
           data={items}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <View key={item.id} style={styles.cartItemLayout}>
+            <View
+              style={{
+                backgroundColor: "#fff",
+                borderRadius: 6,
+                boxShadow: "0px 3px 6px rgba(0, 0, 0, 0.15)",
+              }}
+              key={item.id}
+              className="flex-row items-center justify-around rounded-2xl bg-white p-2 gap-2 py-4"
+            >
               <Image
                 source={{ uri: item.imageUrl }}
-                style={styles.cartItemImage}
+                style={{
+                  width: 80,
+                  height: 72,
+                }}
               />
-              <View>
-                <Text style={styles.productTitle}>{item.name}</Text>
-                <View style={styles.cartOperationsContainer}>
+
+              <View className="gap-4">
+                <Text className="font-lato-bold text-[14px] text-text">
+                  {item.name}
+                </Text>
+
+                <View className="flex-row justify-around">
                   <Pressable
                     disabled={item.quantity <= 1}
-                    onPress={() => {
-                      reduceItemQuantity(item.id);
-                    }}
+                    onPress={() => reduceItemQuantity(item.id)}
                   >
                     <Ionicons
                       name="remove"
                       size={24}
                       color={
-                        item.quantity > 1
-                          ? Colors.primary
-                          : Colors.backgroundTertiary
+                        item.quantity > 1 ? Colors.primary : Colors.primary
                       }
                     />
                   </Pressable>
-                  <View style={styles.cartQuantityBackground}>
-                    <Text style={styles.cartItemQuantityText}>
+
+                  <View className="rounded-md p-2 bg-primary">
+                    <Text className="font-lato-bold text-[12px] text-background">
                       {item.quantity}
                     </Text>
                   </View>
+
                   <Pressable
-                    onPress={() => increaseItemQuantity(item.id)}
                     disabled={item.quantity >= item.stockCount}
+                    onPress={() => increaseItemQuantity(item.id)}
                   >
                     <Ionicons
                       name="add"
@@ -72,17 +91,19 @@ const CartScreen = () => {
                       color={
                         item.quantity < item.stockCount
                           ? Colors.primary
-                          : Colors.backgroundTertiary
+                          : Colors.primary
                       }
                     />
                   </Pressable>
                 </View>
               </View>
-              <View>
-                <Text style={styles.cartItemPrice}>
+
+              <View className="gap-4">
+                <Text className="font-lato-bold text-lg text-primary">
                   {formatNaira(item.price)}
                 </Text>
-                <View style={styles.deleteCartContainer}>
+
+                <View className="justify-end">
                   <Pressable onPress={() => removeFromCart(item.id)}>
                     <Ionicons
                       name="trash-outline"
@@ -95,106 +116,29 @@ const CartScreen = () => {
             </View>
           )}
           ListFooterComponent={() => (
-            <>
-              <View style={styles.divider} />
-              <View>
-                <Text style={styles.sectionTitle}>Order Info</Text>
-                <View style={styles.totalSection}>
-                  <Text style={styles.totalSectionTitle}>Total</Text>
-                  <Text style={styles.cartItemPrice}>
+            <View className="mt-4">
+              <View className="my-5 h-0.5 bg-text" />
+
+              <View className="gap-2">
+                <Text className="font-lato-bold text-text">Order Info</Text>
+
+                <View className="flex-row justify-between">
+                  <Text className="font-lato text-textSecondary">Total</Text>
+
+                  <Text className="font-lato-bold text-[18px] text-primary">
                     {formatNaira(totalPrice)}
                   </Text>
                 </View>
               </View>
-              <View style={styles.spacer} />
-            </>
+
+              <View className="flex-1" />
+            </View>
           )}
         />
-        <Pressable onPress={handleCheckout} style={styles.checkoutButton}>
-          <Text style={styles.checkoutButtonText}>Check out</Text>
-        </Pressable>
+        <Button onPress={handleCheckout} label="Checkout" />
       </View>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-    padding: 10,
-  },
-  cartItemLayout: {
-    borderRadius: 16,
-    borderColor: Colors.border,
-    justifyContent: "space-around",
-    flexDirection: "row",
-  },
-  cartItemImage: {
-    width: 80,
-    height: 72,
-  },
-  productTitle: {
-    fontFamily: "Lato_400Regular",
-    fontSize: 14,
-    color: Colors.text,
-  },
-  cartOperationsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-  },
-  cartItemPrice: {
-    fontFamily: "Lato_700Bold",
-    color: Colors.primary,
-    fontSize: 18,
-  },
-  cartQuantityBackground: {
-    padding: 8,
-    borderRadius: 4,
-  },
-  cartItemQuantityText: {
-    fontFamily: "Lato_700Bold",
-    color: Colors.background,
-    fontSize: 12,
-  },
-  deleteCartContainer: {
-    justifyContent: "flex-end",
-  },
-  divider: {
-    marginVertical: 20,
-    height: 2,
-    color: Colors.text,
-  },
-  spacer: {
-    flex: 1,
-  },
-  sectionTitle: {
-    fontFamily: "Lato_700Bold",
-    color: Colors.text,
-  },
-  totalSection: {
-    justifyContent: "space-between",
-    flexDirection: "row",
-  },
-  totalSectionTitle: {
-    color: Colors.textSecondary,
-    fontFamily: "Lato_400Regular",
-  },
-
-  checkoutButton: {
-    padding: 10,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  checkoutButtonText: {
-    fontFamily: "Lato_700Bold",
-    fontSize: 16,
-    color: Colors.primary,
-  },
-});
 
 export default CartScreen;

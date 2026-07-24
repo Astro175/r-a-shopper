@@ -1,8 +1,10 @@
+import SmallLogoIcon from "@/components/icons/SmallLogoIcon";
 import ProductCard from "@/components/ProductCard";
 import SupplierCard from "@/components/SupplierCard";
 import { Colors } from "@/constants/colors";
 import { useProducts } from "@/hooks/useProducts";
 import { useSupplier } from "@/hooks/useSupplier";
+import { useAuthStore } from "@/stores/authStore";
 import Ionicons, {
   IoniconsIconName,
 } from "@react-native-vector-icons/ionicons";
@@ -26,12 +28,44 @@ const CATEGORIES: CategoryItem[] = [
 const HomeScreen = () => {
   const { data, error } = useProducts({ limit: 10 });
   const products = data?.pages.flatMap((page) => page.products);
+  const session = useAuthStore((state) => state.session);
 
   const { data: suppliers } = useSupplier();
 
   return (
-    <SafeAreaView className="flex-1 p-2.5">
+    <SafeAreaView className="flex-1 p-2.5 bg-white">
       <ScrollView className="flex-1">
+        <View className="my-4 flex-row justify-between border-b border-b-blue-50 pb-2">
+          <SmallLogoIcon />
+          <View className="flex-row-reverse gap-2">
+            <View className="h-[45] w-[45] bg-secondary2 rounded-full items-center justify-center">
+              <Ionicons name="notifications-outline" size={24} color="black" />
+            </View>
+            <View className="h-[45] w-[45] bg-secondary2 rounded-full items-center justify-center">
+              <Text className="uppercase text-sm font-lato-bold text-black">
+                {session?.email.slice(0, 2)}
+              </Text>
+            </View>
+          </View>
+        </View>
+        <View>
+          <Pressable
+            className="p-4 bg-[#F3F4F9] my-4 py-5 rounded-full flex-row items-center"
+            onPress={() =>
+              router.push({
+                pathname: "/(buyer)/(market)",
+                params: { focusSearch: "true" },
+              })
+            }
+          >
+            <View className="flex-row gap-4">
+              <Ionicons name="search-outline" size={20} />
+              <Text className="text-[#86869E] font-lato ">
+                Search for all your engineering supplies
+              </Text>
+            </View>
+          </Pressable>
+        </View>
         <FlatList
           data={CATEGORIES}
           horizontal
@@ -57,11 +91,13 @@ const HomeScreen = () => {
             </Pressable>
           )}
         />
-        <Text className="mb-2.5 font-lato-bold text-[16px] text-text">
+        <View className="my-3" />
+        <Text className="my-4 font-lato-bold text-[16px] text-text ">
           Recently Added
         </Text>
 
         <FlatList
+          ItemSeparatorComponent={() => <View className="w-3" />}
           data={products}
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -72,7 +108,7 @@ const HomeScreen = () => {
               variant="horizontal"
               onPress={() =>
                 router.push({
-                  pathname: "/(buyer)/( market)/product/[id]",
+                  pathname: "/product/[id]",
                   params: { id: item.id },
                 })
               }
@@ -88,6 +124,7 @@ const HomeScreen = () => {
         <FlatList
           data={suppliers}
           horizontal
+          ItemSeparatorComponent={() => <View className="w-3" />}
           showsHorizontalScrollIndicator={false}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <SupplierCard supplier={item} />}

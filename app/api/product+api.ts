@@ -35,13 +35,14 @@ export async function GET(request: Request) {
       price,
       category,
       rating,
+      description,
       imageUrl:image_url,
       quantity,
       createdAt:created_at,
       seller:suppliers ( id, name )
       `);
   query = params.searchKeyword
-    ? query.ilike("title", `%${params.searchKeyword}%`)
+    ? query.ilike("name", `%${params.searchKeyword}%`)
     : query;
   query = params.category
     ? query.ilike("category", `%${params.category}%`)
@@ -71,8 +72,8 @@ export async function GET(request: Request) {
   type ProductsWithSuppliers = QueryData<typeof query>;
   const { data, error } = await query;
 
-  if (!data || error) {
-    return Response.json({ data: [], nextCursor: null });
+  if (!data || error || data.length === 0) {
+    return Response.json({ products: [], nextCursor: null });
   }
   const products: ProductsWithSuppliers = data;
   const nextCursor =

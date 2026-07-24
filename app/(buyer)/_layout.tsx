@@ -12,7 +12,9 @@ const BuyerLayout = () => {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.secondary,
+        tabBarInactiveTintColor: "#94A3B8",
+        tabBarStyle: { height: 80, paddingTop: 10 },
+        tabBarLabelStyle: { fontFamily: "Lato_700Bold" },
       }}
     >
       <Tabs.Screen
@@ -42,6 +44,9 @@ const BuyerLayout = () => {
       <Tabs.Screen
         name="cart"
         options={{
+          headerShown: true,
+          headerTitleStyle: { textAlign: "center" },
+          headerTitleAlign: "center",
           title: "Cart",
           tabBarIcon: ({ color, size, focused }) =>
             focused ? (
