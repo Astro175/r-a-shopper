@@ -6,7 +6,6 @@ const isNative =
 
 const getStorage = (): SupportedStorage => {
   if (!isNative) {
-    // Server environment — return a no-op storage
     return {
       getItem: async () => null,
       setItem: async () => {},

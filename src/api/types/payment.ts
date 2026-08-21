@@ -1,0 +1,75 @@
+export type PaymentVerificationResponse = {
+  status: boolean;
+  message: string;
+  data: {
+    id: number;
+    domain: string;
+    status: string;
+    reference: string;
+    receipt_number: string | null;
+    amount: number;
+    message: string | null;
+    gateway_response: string;
+    paid_at: string;
+    created_at: string;
+    channel: string;
+    currency: string;
+    ip_address: string;
+    metadata: string;
+    log: {
+      start_time: number;
+      time_spent: number;
+      attempts: number;
+      errors: number;
+      success: boolean;
+      mobile: boolean;
+      input: unknown[];
+      history: {
+        type: string;
+        message: string;
+        time: number;
+      }[];
+    };
+    fees: number;
+    fees_split: unknown | null;
+    authorization: {
+      authorization_code: string;
+      bin: string;
+      last4: string;
+      exp_month: string;
+      exp_year: string;
+      channel: string;
+      card_type: string;
+      bank: string;
+      country_code: string;
+      brand: string;
+      reusable: boolean;
+      signature: string;
+      account_name: string | null;
+    };
+    customer: {
+      id: number;
+      first_name: string | null;
+      last_name: string | null;
+      email: string;
+      customer_code: string;
+      phone: string | null;
+      metadata: unknown | null;
+      risk_action: string;
+      international_format_phone: string | null;
+    };
+    plan: unknown | null;
+    split: Record<string, unknown>;
+    order_id: string | null;
+    paidAt: string;
+    createdAt: string;
+    requested_amount: number;
+    pos_transaction_data: unknown | null;
+    source: unknown | null;
+    fees_breakdown: unknown | null;
+    connect: unknown | null;
+    transaction_date: string;
+    plan_object: Record<string, unknown>;
+    subaccount: Record<string, unknown>;
+  };
+};

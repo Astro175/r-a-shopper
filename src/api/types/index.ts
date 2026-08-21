@@ -33,4 +33,8 @@ export type HttpError = {
   validationErrors?: Record<string, string[]>;
 };
 
+
+
+
+
 export type StandardError = NetworkError | HttpError;

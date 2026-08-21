@@ -20,29 +20,69 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as z from "zod";
 
-const schema = z.object({
+const buyerSchema = z.object({
   fullName: z.string().min(2, "Name is too short"),
   email: z.email("Email format is incorrect"),
-  role: z.enum(["buyer", "seller"]),
 });
 
-type FormValues = z.infer<typeof schema>;
-
-const SignUpScreen = () => {
-  const {
-    control,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm<FormValues>({
-    resolver: zodResolver(schema),
-    defaultValues: { role: "buyer" },
+const sellerSchema = buyerSchema
+  .extend({
+    password: z
+      .string()
+      .min(8, "Password must be 8 characters")
+      .refine((val) => /[A-Z]/.test(val), {
+        error: "Add an uppercase character",
+      })
+      .refine((val) => /[0-9]/.test(val), { error: "Add a number" })
+      .refine((val) => /[^A-Za-z0-9]/.test(val), {
+        error: "Add a special character",
+      }),
+    confirmPassword: z.string(),
+  })
+  .refine((val) => val.password === val.confirmPassword, {
+    error: "Passwords don't match",
+    path: ["confirmPassword"],
   });
 
-  const role = watch("role");
+type BuyerFormValues = z.infer<typeof buyerSchema>;
+type SellerFormValues = z.infer<typeof sellerSchema>;
+
+const SignUpScreen = () => {
+  const buyerForm = useForm<BuyerFormValues>({
+    resolver: zodResolver(buyerSchema),
+  });
+  const sellerForm = useForm<SellerFormValues>({
+    resolver: zodResolver(sellerSchema),
+  });
+
+  const [role, setRole] = useState<"buyer" | "seller">("buyer");
   const [isLoading, setIsLoading] = useState(false);
 
-  const onSubmit = async (data: FormValues) => {
+  const onSellerSubmit = async (formValues: SellerFormValues) => {
+    setIsLoading(true);
+    const { data, error } = await supabase.auth.signUp({
+      email: formValues.email,
+      password: formValues.password,
+      options: {
+        data: {
+          full_name: formValues.fullName,
+          role,
+        },
+      },
+    });
+    setIsLoading(false);
+    if (!data.session) {
+      router.push({
+        pathname: "/verify-otp",
+        params: { email: formValues.email },
+      });
+    }
+    if (error) {
+      showToast(error.message);
+      return;
+    }
+  };
+  const onBuyerSubmit = async (data: BuyerFormValues) => {
     setIsLoading(true);
 
     const { error } = await supabase.auth.signInWithOtp({
@@ -51,7 +91,7 @@ const SignUpScreen = () => {
         shouldCreateUser: true,
         data: {
           full_name: data.fullName,
-          role: data.role,
+          role,
         },
       },
     });
@@ -59,7 +99,7 @@ const SignUpScreen = () => {
     setIsLoading(false);
 
     if (error) {
-      showToast(error.message)
+      showToast(error.message);
       return;
     }
 
@@ -86,113 +126,164 @@ const SignUpScreen = () => {
             Please fill the details below
           </Text>
         </View>
-        <Controller
-          name="role"
-          control={control}
-          render={({ field: { onChange } }) => (
-            <View className="flex-row items-center justify-center gap-8">
-              <Pressable
-                className="items-center"
-                onPress={() => onChange("buyer")}
-              >
-                <View
-                  className={`h-[60px] w-[60px] rounded-lg border p-3 ${
-                    role === "buyer"
-                      ? "border-primary"
-                      : "border-borderSecondary"
-                  }`}
-                >
-                  <Ionicons
-                    size={28}
-                    name="cart-outline"
-                    color={
-                      role === "buyer" ? Colors.primary : Colors.borderSecondary
-                    }
-                  />
-                </View>
-
-                <Text
-                  className={`text-center font-lato text-sm ${
-                    role === "buyer" ? "text-primary" : "text-textSecondary"
-                  }`}
-                >
-                  Buyer
-                </Text>
-              </Pressable>
-              <Pressable
-                className="items-center"
-                onPress={() => onChange("seller")}
-              >
-                <View
-                  className={`h-[60px] w-[60px] rounded-lg border p-3 ${
-                    role === "seller"
-                      ? "border-primary"
-                      : "border-borderSecondary"
-                  }`}
-                >
-                  <Ionicons
-                    name="cube-outline"
-                    size={28}
-                    color={
-                      role === "seller"
-                        ? Colors.primary
-                        : Colors.borderSecondary
-                    }
-                  />
-                </View>
-
-                <Text
-                  className={`text-center font-lato text-sm ${
-                    role === "seller" ? "text-primary" : "text-textSecondary"
-                  }`}
-                >
-                  Seller
-                </Text>
-              </Pressable>
+        <View className="flex-row items-center justify-center gap-8">
+          <Pressable className="items-center" onPress={() => setRole("buyer")}>
+            <View
+              className={`h-[60px] w-[60px] rounded-lg border p-3 ${
+                role === "buyer" ? "border-primary" : "border-borderSecondary"
+              }`}
+            >
+              <Ionicons
+                size={28}
+                name="cart-outline"
+                color={
+                  role === "buyer" ? Colors.primary : Colors.borderSecondary
+                }
+              />
             </View>
-          )}
-        />
 
-        {errors.role && (
-          <Text className="mt-1 font-lato text-sm text-error">
-            {errors.role.message}
-          </Text>
+            <Text
+              className={`text-center font-lato text-sm ${
+                role === "buyer" ? "text-primary" : "text-textSecondary"
+              }`}
+            >
+              Buyer
+            </Text>
+          </Pressable>
+          <Pressable className="items-center" onPress={() => setRole("seller")}>
+            <View
+              className={`h-[60px] w-[60px] rounded-lg border p-3 ${
+                role === "seller" ? "border-primary" : "border-borderSecondary"
+              }`}
+            >
+              <Ionicons
+                name="cube-outline"
+                size={28}
+                color={
+                  role === "seller" ? Colors.primary : Colors.borderSecondary
+                }
+              />
+            </View>
+
+            <Text
+              className={`text-center font-lato text-sm ${
+                role === "seller" ? "text-primary" : "text-textSecondary"
+              }`}
+            >
+              Seller
+            </Text>
+          </Pressable>
+        </View>
+        {role === "buyer" ? (
+          <>
+            <Controller
+              name="fullName"
+              control={buyerForm.control}
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  value={value}
+                  onChangeText={onChange}
+                  placeholder="Full Name"
+                  placeholderTextColor={Colors.placeholder}
+                  className="my-4 rounded-xl bg-secondary px-3 py-3.5"
+                />
+              )}
+            />
+            <Controller
+              control={buyerForm.control}
+              name="email"
+              render={({ field: { onChange, value } }) => (
+                <Input
+                  errorMessage={
+                    buyerForm.formState.errors.email &&
+                    buyerForm.formState.errors.email.message
+                  }
+                  value={value}
+                  onChangeText={onChange}
+                  autoComplete="email"
+                  keyboardType="email-address"
+                  placeholder="Email"
+                  autoCapitalize="none"
+                />
+              )}
+            />
+          </>
+        ) : (
+          <>
+            <Controller
+              control={sellerForm.control}
+              name="fullName"
+              render={({ field: { onChange, value } }) => (
+                <Input
+                  value={value}
+                  onChangeText={onChange}
+                  placeholder="Full Name"
+                  errorMessage={
+                    sellerForm.formState.errors.fullName &&
+                    sellerForm.formState.errors.fullName.message
+                  }
+                />
+              )}
+            />
+            <Controller
+              control={sellerForm.control}
+              name="email"
+              render={({ field: { onChange, value } }) => (
+                <Input
+                  value={value}
+                  onChangeText={onChange}
+                  placeholder="E-mail"
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  keyboardType="email-address"
+                  errorMessage={
+                    sellerForm.formState.errors.email &&
+                    sellerForm.formState.errors.email.message
+                  }
+                />
+              )}
+            />
+            <Controller
+              control={sellerForm.control}
+              name="password"
+              render={({ field: { onChange, value } }) => (
+                <Input
+                  isPassword={true}
+                  label="Password"
+                  onChangeText={onChange}
+                  placeholder="********"
+                  value={value}
+                />
+              )}
+            />
+            <Controller
+              control={sellerForm.control}
+              name="confirmPassword"
+              render={({ field: { onChange, value } }) => (
+                <Input
+                  isPassword={true}
+                  label="Confirm Password"
+                  placeholder="********"
+                  value={value}
+                  onChangeText={onChange}
+                />
+              )}
+            />
+          </>
         )}
-        <Controller
-          name="fullName"
-          control={control}
-          render={({ field: { onChange, value } }) => (
-            <TextInput
-              value={value}
-              onChangeText={onChange}
-              placeholder="Full Name"
-              placeholderTextColor={Colors.placeholder}
-              className="my-4 rounded-xl bg-secondary px-3 py-3.5"
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="email"
-          render={({ field: { onChange, value } }) => (
-            <Input
-              errorMessage={errors.email && errors.email.message}
-              value={value}
-              onChangeText={onChange}
-              autoComplete="email"
-              keyboardType="email-address"
-              placeholder="Email"
-              autoCapitalize="none"
-            />
-          )}
-        />
         <View className="flex-1" />
 
         <Button
           label="Proceed"
           variant="primary"
           isLoading={isLoading}
-          onPress={handleSubmit(onSubmit)}
+          onPress={() => {
+            if (role === "buyer") {
+              buyerForm.handleSubmit(onBuyerSubmit)();
+            } else {
+              sellerForm.handleSubmit(onSellerSubmit)();
+            }
+          }}
         />
       </SafeAreaView>
     </KeyboardAvoidingView>

@@ -1,3 +1,4 @@
+import Toast from "@/components/Toast";
 import { queryClient } from "@/lib/queryClient";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/stores/authStore";
@@ -16,7 +17,6 @@ import { SplashScreen, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import Toast from "@/components/Toast";
 import "../global.css";
 SplashScreen.preventAutoHideAsync();
 
@@ -74,15 +74,20 @@ export default function TabLayout() {
         <QueryClientProvider client={queryClient}>
           <StatusBar style="dark" />
           <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Protected guard={!!session}>
-              <Stack.Screen name="(buyer)" />
-              <Stack.Screen name="(seller)" />
+            <Stack.Protected guard={!hasOnboarded}>
+              <Stack.Screen name="onboarding" />
             </Stack.Protected>
-            <Stack.Protected guard={!session}>
-              <Stack.Protected guard={!hasOnboarded}>
-                <Stack.Screen name="onboarding" />
-              </Stack.Protected>
+            <Stack.Protected guard={hasOnboarded && !session}>
               <Stack.Screen name="(auth)" />
+            </Stack.Protected>
+            <Stack.Protected guard={!!session && !session.role}>
+              <Stack.Screen name="select-role" />
+            </Stack.Protected>
+            <Stack.Protected guard={session?.role === "buyer"}>
+              <Stack.Screen name="(buyer)"/>
+            </Stack.Protected>
+            <Stack.Protected guard={session?.role === "seller"}>
+              <Stack.Screen name="(seller)"/>
             </Stack.Protected>
           </Stack>
         </QueryClientProvider>
