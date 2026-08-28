@@ -30,24 +30,22 @@ const Input = ({
 
   return (
     <View>
-      {label && <Text className="font-lato-bold text-[#1D1E20]">{label}</Text>}
+      {label && (
+        <Text className="font-lato-bold text-[#1D1E20] mb-2">{label}</Text>
+      )}
       {isPassword ? (
-        <View className="bg-secondary rounded-xl p-4 items-center">
+        <View className="flex-row items-center justify-center px-4 bg-secondary rounded-xl">
           {showPassword ? (
-            <Pressable onPress={() => setShowPassword(true)}>
-              <Ionicons
-                name="eye-outline"
-                size={20}
-                color={Colors.placeholder}
-              />
+            <Pressable onPress={() => setShowPassword((prev) => !prev)}>
+              <Ionicons name="eye-off-outline" size={20} color="#1D1E20" />
             </Pressable>
           ) : (
-            <Pressable onPress={() => setShowPassword(false)}>
-              <Ionicons name="eye-off-outline" size={20} />
+            <Pressable onPress={() => setShowPassword((prev) => !prev)}>
+              <Ionicons name="eye-outline" size={20} color="#1D1E20" />
             </Pressable>
           )}
           <TextInput
-            className="bg-secondary rounded-xl p-4"
+            className="flex-1 p-4 bg-secondary rounded-xl text-[#1D1E20]"
             value={value}
             onChangeText={onChangeText}
             placeholder={placeholder}
@@ -60,7 +58,7 @@ const Input = ({
         </View>
       ) : (
         <TextInput
-          className="bg-secondary rounded-xl p-4"
+          className="p-4 bg-secondary rounded-xl"
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}

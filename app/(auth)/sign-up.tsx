@@ -10,13 +10,14 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
-  KeyboardAvoidingView,
-  Platform,
+  Keyboard,
   Pressable,
   Text,
   TextInput,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as z from "zod";
 
@@ -70,16 +71,16 @@ const SignUpScreen = () => {
         },
       },
     });
+    if (error) {
+      showToast(error.message);
+      return;
+    }
     setIsLoading(false);
     if (!data.session) {
       router.push({
         pathname: "/verify-otp",
         params: { email: formValues.email },
       });
-    }
-    if (error) {
-      showToast(error.message);
-      return;
     }
   };
   const onBuyerSubmit = async (data: BuyerFormValues) => {
@@ -110,167 +111,183 @@ const SignUpScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      className="flex-1"
-    >
-      <SafeAreaView className="flex-1 bg-background p-5">
-        <View className="my-4 items-center justify-center">
-          <MediumLogoIcon />
+    <TouchableWithoutFeedback className="flex-1" onPress={Keyboard.dismiss}>
+      <SafeAreaView className="flex-1 p-5 bg-background">
+        <KeyboardAwareScrollView
+          keyboardShouldPersistTaps="handled"
+          enableOnAndroid
+          extraScrollHeight={20}
+          showsVerticalScrollIndicator={false}
+        >
+          <View className="items-center justify-center my-4">
+            <MediumLogoIcon />
+            <Text className="my-2.5 font-lato-bold text-[18px] text-text">
+              Create Account
+            </Text>
 
-          <Text className="my-2.5 font-lato-bold text-[18px] text-text">
-            Create Account
-          </Text>
-
-          <Text className="font-lato text-sm text-text">
-            Please fill the details below
-          </Text>
-        </View>
-        <View className="flex-row items-center justify-center gap-8">
-          <Pressable className="items-center" onPress={() => setRole("buyer")}>
-            <View
-              className={`h-[60px] w-[60px] rounded-lg border p-3 ${
-                role === "buyer" ? "border-primary" : "border-borderSecondary"
-              }`}
+            <Text className="text-sm font-lato text-text">
+              Please fill the details below
+            </Text>
+          </View>
+          <View className="flex-row items-center justify-center gap-8">
+            <Pressable
+              className="items-center"
+              onPress={() => setRole("buyer")}
             >
-              <Ionicons
-                size={28}
-                name="cart-outline"
-                color={
-                  role === "buyer" ? Colors.primary : Colors.borderSecondary
-                }
+              <View
+                className={`h-[60px] w-[60px] rounded-lg border items-center justify-center
+                 p-3 ${
+                   role === "buyer"
+                     ? "border-primary"
+                     : "border-borderSecondary"
+                 }`}
+              >
+                <Ionicons
+                  size={28}
+                  name="cart-outline"
+                  color={
+                    role === "buyer" ? Colors.primary : Colors.borderSecondary
+                  }
+                />
+              </View>
+
+              <Text
+                className={`text-center font-lato text-sm ${
+                  role === "buyer" ? "text-primary" : "text-textSecondary"
+                }`}
+              >
+                Buyer
+              </Text>
+            </Pressable>
+            <Pressable
+              className="items-center"
+              onPress={() => setRole("seller")}
+            >
+              <View
+                className={`h-[60px] w-[60px] rounded-lg border items-center justify-center p-3 ${
+                  role === "seller"
+                    ? "border-primary"
+                    : "border-borderSecondary"
+                }`}
+              >
+                <Ionicons
+                  name="cube-outline"
+                  size={28}
+                  color={
+                    role === "seller" ? Colors.primary : Colors.borderSecondary
+                  }
+                />
+              </View>
+
+              <Text
+                className={`text-center font-lato text-sm ${
+                  role === "seller" ? "text-primary" : "text-textSecondary"
+                }`}
+              >
+                Seller
+              </Text>
+            </Pressable>
+          </View>
+          {role === "buyer" ? (
+            <>
+              <Controller
+                name="fullName"
+                control={buyerForm.control}
+                render={({ field: { onChange, value } }) => (
+                  <TextInput
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder="Full Name"
+                    placeholderTextColor={Colors.placeholder}
+                    className="my-4 rounded-xl bg-secondary px-3 py-3.5"
+                  />
+                )}
+              />
+              <Controller
+                control={buyerForm.control}
+                name="email"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    errorMessage={
+                      buyerForm.formState.errors.email &&
+                      buyerForm.formState.errors.email.message
+                    }
+                    value={value}
+                    onChangeText={onChange}
+                    autoComplete="email"
+                    keyboardType="email-address"
+                    placeholder="Email"
+                    autoCapitalize="none"
+                  />
+                )}
+              />
+            </>
+          ) : (
+            <View className="gap-2">
+              <Controller
+                control={sellerForm.control}
+                name="fullName"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    label="Full Name"
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder="Full Name"
+                    errorMessage={
+                      sellerForm.formState.errors.fullName &&
+                      sellerForm.formState.errors.fullName.message
+                    }
+                  />
+                )}
+              />
+              <Controller
+                control={sellerForm.control}
+                name="email"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    label="Email"
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder="E-mail"
+                    autoCapitalize="none"
+                    autoComplete="email"
+                    keyboardType="email-address"
+                    errorMessage={
+                      sellerForm.formState.errors.email &&
+                      sellerForm.formState.errors.email.message
+                    }
+                  />
+                )}
+              />
+              <Controller
+                control={sellerForm.control}
+                name="password"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    isPassword={true}
+                    label="Password"
+                    onChangeText={onChange}
+                    placeholder="********"
+                    value={value}
+                  />
+                )}
+              />
+              <Controller
+                control={sellerForm.control}
+                name="confirmPassword"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    isPassword={true}
+                    label="Confirm Password"
+                    placeholder="********"
+                    value={value}
+                    onChangeText={onChange}
+                  />
+                )}
               />
             </View>
-
-            <Text
-              className={`text-center font-lato text-sm ${
-                role === "buyer" ? "text-primary" : "text-textSecondary"
-              }`}
-            >
-              Buyer
-            </Text>
-          </Pressable>
-          <Pressable className="items-center" onPress={() => setRole("seller")}>
-            <View
-              className={`h-[60px] w-[60px] rounded-lg border p-3 ${
-                role === "seller" ? "border-primary" : "border-borderSecondary"
-              }`}
-            >
-              <Ionicons
-                name="cube-outline"
-                size={28}
-                color={
-                  role === "seller" ? Colors.primary : Colors.borderSecondary
-                }
-              />
-            </View>
-
-            <Text
-              className={`text-center font-lato text-sm ${
-                role === "seller" ? "text-primary" : "text-textSecondary"
-              }`}
-            >
-              Seller
-            </Text>
-          </Pressable>
-        </View>
-        {role === "buyer" ? (
-          <>
-            <Controller
-              name="fullName"
-              control={buyerForm.control}
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  value={value}
-                  onChangeText={onChange}
-                  placeholder="Full Name"
-                  placeholderTextColor={Colors.placeholder}
-                  className="my-4 rounded-xl bg-secondary px-3 py-3.5"
-                />
-              )}
-            />
-            <Controller
-              control={buyerForm.control}
-              name="email"
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  errorMessage={
-                    buyerForm.formState.errors.email &&
-                    buyerForm.formState.errors.email.message
-                  }
-                  value={value}
-                  onChangeText={onChange}
-                  autoComplete="email"
-                  keyboardType="email-address"
-                  placeholder="Email"
-                  autoCapitalize="none"
-                />
-              )}
-            />
-          </>
-        ) : (
-          <>
-            <Controller
-              control={sellerForm.control}
-              name="fullName"
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  value={value}
-                  onChangeText={onChange}
-                  placeholder="Full Name"
-                  errorMessage={
-                    sellerForm.formState.errors.fullName &&
-                    sellerForm.formState.errors.fullName.message
-                  }
-                />
-              )}
-            />
-            <Controller
-              control={sellerForm.control}
-              name="email"
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  value={value}
-                  onChangeText={onChange}
-                  placeholder="E-mail"
-                  autoCapitalize="none"
-                  autoComplete="email"
-                  keyboardType="email-address"
-                  errorMessage={
-                    sellerForm.formState.errors.email &&
-                    sellerForm.formState.errors.email.message
-                  }
-                />
-              )}
-            />
-            <Controller
-              control={sellerForm.control}
-              name="password"
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  isPassword={true}
-                  label="Password"
-                  onChangeText={onChange}
-                  placeholder="********"
-                  value={value}
-                />
-              )}
-            />
-            <Controller
-              control={sellerForm.control}
-              name="confirmPassword"
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  isPassword={true}
-                  label="Confirm Password"
-                  placeholder="********"
-                  value={value}
-                  onChangeText={onChange}
-                />
-              )}
-            />
-          </>
-        )}
+          )}
+        </KeyboardAwareScrollView>
         <View className="flex-1" />
 
         <Button
@@ -286,7 +303,7 @@ const SignUpScreen = () => {
           }}
         />
       </SafeAreaView>
-    </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 };
 
